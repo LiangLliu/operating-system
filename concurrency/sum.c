@@ -27,6 +27,7 @@ sum = 100000000
 gcc -O2 sum.c -lpthread -o sum.out && ./sum.out
 sum = 200000000
 
-gcc -O1 sum.c -o sum.out && objdump -d sum.out
+gcc -O1 sum.c -c sum.o && objdump -d sum.o
+gcc -O2 sum.c -c sum.o && objdump -d sum.o
 
 */

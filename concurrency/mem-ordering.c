@@ -2,16 +2,17 @@
 
 int x = 0, y = 0;
 
-atomic_int flag;
+atomic_int flag; // 开关，初始值为0，开关是关的
 #define FLAG atomic_load(&flag)
-#define FLAG_XOR(val) atomic_fetch_xor(&flag, val)
-#define WAIT_FOR(cond) while (!(cond)) ;
+#define FLAG_XOR(val) atomic_fetch_xor(&flag, val) // 异或到某一个常数
+#define WAIT_FOR(cond) while (!(cond)) ; // 等到某一个条件发生
 
  __attribute__((noinline))
 void write_x_read_y() {
   int y_val;
   asm volatile(
     "movl $1, %0;" // x = 1
+    // "mfence;"
     "movl %2, %1;" // y_val = y
     : "=m"(x), "=r"(y_val) : "m"(y)
   );
@@ -23,6 +24,7 @@ void write_y_read_x() {
   int x_val;
   asm volatile(
     "movl $1, %0;" // y = 1
+    // "mfence;"
     "movl %2, %1;" // x_val = x
     : "=m"(y), "=r"(x_val) : "m"(x)
   );
@@ -45,15 +47,16 @@ void T2() {
   }
 }
 
+// 控制线程
 void Tsync() {
   while (1) {
-    x = y = 0;
+    x = y = 0; 
     __sync_synchronize(); // full barrier
-    // usleep(1);            // + delay
+    usleep(1);            // + delay
     assert(FLAG == 0);
-    FLAG_XOR(3);
+    FLAG_XOR(3); // 原子操作，把两个开关同时推上去 1, 1
     // T1 and T2 clear 0/1-bit, respectively
-    WAIT_FOR(FLAG == 0);
+    WAIT_FOR(FLAG == 0); // 等到开关为0
     printf("\n"); fflush(stdout);
   }
 }
