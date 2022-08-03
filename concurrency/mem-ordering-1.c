@@ -9,26 +9,14 @@ atomic_int flag; // 开关，初始值为0，开关是关的
 
  __attribute__((noinline))
 void write_x_read_y() {
-  int y_val;
-  asm volatile(
-    "movl $1, %0;" // x = 1
-    "mfence;"
-    "movl %2, %1;" // y_val = y
-    : "=m"(x), "=r"(y_val) : "m"(y)
-  );
-  printf("%d ", y_val);
+  x = 1;
+  printf("%d ", y);
 }
 
  __attribute__((noinline))
 void write_y_read_x() {
-  int x_val;
-  asm volatile(
-    "movl $1, %0;" // y = 1
-    "mfence;"
-    "movl %2, %1;" // x_val = x
-    : "=m"(y), "=r"(x_val) : "m"(x)
-  );
-  printf("%d ", x_val);
+   y = 1;
+  printf("%d ", x);
 }
 
 void T1(int id) {
@@ -69,8 +57,8 @@ int main() {
 
 
 /*
-gcc mem-ordering.c -lpthread -o mem-ordering.out && ./mem-ordering.out
+gcc mem-ordering-1.c -lpthread -o mem-ordering-1.out && ./mem-ordering-1.out
 
 统计结果
-gcc mem-ordering.c -lpthread -o mem-ordering.out && ./mem-ordering.out | head -n 1000 | sort | uniq -c
+gcc mem-ordering-1.c -lpthread -o mem-ordering-1.out && ./mem-ordering-1.out | head -n 1000 | sort | uniq -c
 */
